@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>写みっけ｜写真1枚で、SNS投稿まで完成</title>
+<meta property="og:title" content="写みっけ｜写真1枚で、SNS投稿まで完成">
+<meta property="og:description" content="写真をアップロードするだけ。AIが改善アドバイス＋SNS投稿文を自動生成します。">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Oswald:wght@700&display=swap');
+
+  :root {
+    --navy: #223670;
+    --gold: #D0A900;
+    --blue: #225AD3;
+    --lightblue: #0179E8;
+    --bg: #F4F7FF;
+    --white: #ffffff;
+    --gray: #f0f2f8;
+    --text: #1a1a2e;
+    --muted: #6b7280;
+    --success: #10b981;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--navy);
+    color: var(--white);
+    padding: 18px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 160px; height: 160px;
+    background: var(--gold);
+    opacity: 0.12;
+    border-radius: 50%;
+  }
+  header .logo {
+    font-family: 'Oswald', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 2px;
+    color: var(--gold);
+  }
+  header .tagline {
+    font-size: 0.78rem;
+    opacity: 0.85;
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .free-badge {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--navy);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-top: 8px;
+    letter-spacing: 0.5px;
+  }
+
+  main {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+  }
+
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 12px rgba(34,54,112,0.08);
+  }
+
+  .card-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  /* アップロードエリア */
+  .upload-area {
+    border: 2.5px dashed #c5d0ea;
+    border-radius: 14px;
+    padding: 36px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--gray);
+    position: relative;
+  }
+  .upload-area:hover, .upload-area.drag-over {
+    border-color: var(--blue);
+    background: #eef2ff;
+  }
+  .upload-area input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+  .upload-icon { font-size: 2.8rem; margin-bottom: 10px; }
+  .upload-text { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+  .upload-text strong { color: var(--blue); }
+
+  #preview-wrap {
+    display: none;
+    margin-top: 16px;
+    text-align: center;
+  }
+  #preview-img {
+    max-width: 100%;
+    max-height: 280px;
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    object-fit: cover;
+  }
+  .change-btn {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  /* 業種セレクト */
+  .genre-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .genre-btn {
+    border: 2px solid #d1d9f0;
+    background: var(--white);
+    border-radius: 10px;
+    padding: 10px 6px;
+    font-size: 0.8rem;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .genre-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .genre-btn.active {
+    border-color: var(--blue);
+    background: var(--blue);
+    color: var(--white);
+    font-weight: 700;
+  }
+  .genre-btn .genre-icon { font-size: 1.3rem; display: block; margin-bottom: 4px; }
+
+  /* 分析ボタン */
+  .analyze-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--blue), var(--lightblue));
+    color: var(--white);
+    border: none;
+    border-radius: 14px;
+    padding: 18px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 16px rgba(34,90,211,0.3);
+  }
+  .analyze-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(34,90,211,0.4); }
+  .analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* カウンター */
+  .counter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-radius: 10px;
+    padding: 10px 16px;
+    margin-bottom: 16px;
+    font-size: 0.82rem;
+  }
+  .counter-bar .count { font-weight: 700; color: var(--gold); font-size: 1rem; }
+
+  /* ローディング */
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 30px;
+  }
+  .spinner {
+    width: 44px; height: 44px;
+    border: 4px solid #e0e7ff;
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 14px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 0.88rem; color: var(--muted); }
+
+  /* 結果エリア */
+  #result-area { display: none; }
+
+  .advice-box {
+    background: linear-gradient(135deg, #eef2ff, #f0f9ff);
+    border-left: 4px solid var(--blue);
+    border-radius: 0 12px 12px 0;
+    padding: 18px;
+    margin-bottom: 20px;
+  }
+  .advice-box h3 {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--blue);
+    margin-bottom: 10px;
+  }
+  .advice-box p {
+    font-size: 0.88rem;
+    line-height: 1.8;
+    color: var(--text);
+    white-space: pre-wrap;
+  }
+
+  /* SNS投稿文 */
+  .sns-card {
+    background: var(--white);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 10px rgba(34,54,112,0.07);
+    border: 1px solid #e8edf8;
+  }
+  .sns-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 12px;
+  }
+  .sns-label .sns-icon {
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.95rem;
+    color: var(--white);
+  }
+  .sns-label .sns-icon.ig { background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+  .sns-label .sns-icon.fb { background: #1877f2; }
+  .sns-label .sns-icon.x  { background: #000; }
+
+  .sns-text {
+    font-size: 0.86rem;
+    line-height: 1.85;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .copy-btn {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    border: 2px solid var(--blue);
+    background: var(--white);
+    color: var(--blue);
+    border-radius: 8px;
+    padding: 9px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover { background: var(--blue); color: var(--white); }
+  .copy-btn.copied { background: var(--success); border-color: var(--success); color: var(--white); }
+
+  /* 再分析ボタン */
+  .retry-btn {
+    width: 100%;
+    background: var(--white);
+    border: 2px solid var(--navy);
+    color: var(--navy);
+    border-radius: 14px;
+    padding: 14px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.15s;
+  }
+  .retry-btn:hover { background: var(--navy); color: var(--white); }
+
+  /* Stripeゲート */
+  #stripe-gate {
+    display: none;
+    text-align: center;
+    padding: 30px 20px;
+  }
+  .gate-icon { font-size: 3rem; margin-bottom: 12px; }
+  .gate-title { font-size: 1.2rem; font-weight: 900; color: var(--navy); margin-bottom: 8px; }
+  .gate-sub { font-size: 0.85rem; color: var(--muted); line-height: 1.7; margin-bottom: 24px; }
+  .stripe-btn {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--navy);
+    font-weight: 900;
+    font-size: 1rem;
+    padding: 16px 40px;
+    border-radius: 50px;
+    text-decoration: none;
+    box-shadow: 0 4px 16px rgba(208,169,0,0.4);
+    transition: all 0.2s;
+  }
+  .stripe-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(208,169,0,0.5); }
+
+  /* パスワード解錠 */
+  .password-area {
+    margin-top: 20px;
+    display: flex;
+    gap: 8px;
+  }
+  .password-area input {
+    flex: 1;
+    border: 2px solid #d1d9f0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.88rem;
+    font-family: 'Noto Sans JP', sans-serif;
+    outline: none;
+  }
+  .password-area input:focus { border-color: var(--blue); }
+  .unlock-btn {
+    background: var(--navy);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+  }
+
+  /* エラー */
+  .error-msg {
+    display: none;
+    background: #fff0f0;
+    border: 1px solid #fca5a5;
+    color: #dc2626;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+  }
+
+  footer {
+    text-align: center;
+    padding: 24px;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  footer a { color: var(--blue); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">📸 写みっけ</div>
+  <div class="tagline">写真1枚で、SNS投稿まで完成。</div>
+  <span class="free-badge">✨ 3回まで無料でお試し</span>
+</header>
+
+<main>
+
+  <!-- カウンター -->
+  <div class="counter-bar">
+    <span>無料残り回数</span>
+    <span class="count" id="counter-display">3 回</span>
+  </div>
+
+  <!-- STEP1: 写真アップロード -->
+  <div class="card">
+    <div class="card-title">📷 STEP 1｜写真をアップロード</div>
+    <div class="upload-area" id="upload-area">
+      <input type="file" id="file-input" accept="image/*">
+      <div class="upload-icon">🖼️</div>
+      <div class="upload-text">
+        <strong>タップして写真を選択</strong><br>
+        JPG・PNG・HEIC 対応
+      </div>
+    </div>
+    <div id="preview-wrap">
+      <img id="preview-img" alt="プレビュー">
+      <div class="change-btn" id="change-btn">▶ 別の写真を選ぶ</div>
+    </div>
+  </div>
+
+  <!-- STEP2: 業種選択 -->
+  <div class="card">
+    <div class="card-title">🏪 STEP 2｜業種を選んでください</div>
+    <div class="genre-grid">
+      <button class="genre-btn" data-genre="飲食店">
+        <span class="genre-icon">🍽️</span>飲食店
+      </button>
+      <button class="genre-btn" data-genre="美容室・エステ">
+        <span class="genre-icon">💇</span>美容室
+      </button>
+      <button class="genre-btn" data-genre="製造業・工務店">
+        <span class="genre-icon">🏭</span>製造業
+      </button>
+      <button class="genre-btn" data-genre="小売・雑貨店">
+        <span class="genre-icon">🛍️</span>小売店
+      </button>
+      <button class="genre-btn" data-genre="士業・コンサル">
+        <span class="genre-icon">💼</span>士業
+      </button>
+      <button class="genre-btn" data-genre="その他">
+        <span class="genre-icon">✨</span>その他
+      </button>
+    </div>
+  </div>
+
+  <!-- エラー表示 -->
+  <div class="error-msg" id="error-msg"></div>
+
+  <!-- 分析ボタン -->
+  <button class="analyze-btn" id="analyze-btn" disabled>
+    🔍 写真を分析してSNS投稿文を作る
+  </button>
+
+  <!-- ローディング -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">写真を分析しています...<br>少々お待ちください</div>
+  </div>
+
+  <!-- 結果エリア -->
+  <div id="result-area">
+    <!-- 改善アドバイス -->
+    <div class="advice-box" id="advice-box">
+      <h3>📊 写真アドバイス</h3>
+      <p id="advice-text"></p>
+    </div>
+
+    <!-- Instagram -->
+    <div class="sns-card">
+      <div class="sns-label">
+        <span class="sns-icon ig">📷</span>Instagram 投稿文
+      </div>
+      <div class="sns-text" id="ig-text"></div>
+      <button class="copy-btn" onclick="copyText('ig-text', this)">コピーする</button>
+    </div>
+
+    <!-- Facebook -->
+    <div class="sns-card">
+      <div class="sns-label">
+        <span class="sns-icon fb">f</span>Facebook 投稿文
+      </div>
+      <div class="sns-text" id="fb-text"></div>
+      <button class="copy-btn" onclick="copyText('fb-text', this)">コピーする</button>
+    </div>
+
+    <!-- X -->
+    <div class="sns-card">
+      <div class="sns-label">
+        <span class="sns-icon x">𝕏</span>X（旧Twitter）投稿文
+      </div>
+      <div class="sns-text" id="x-text"></div>
+      <button class="copy-btn" onclick="copyText('x-text', this)">コピーする</button>
+    </div>
+
+    <button class="retry-btn" id="retry-btn">🔄 別の写真を分析する</button>
+  </div>
+
+  <!-- Stripeゲート -->
+  <div id="stripe-gate" class="card">
+    <div class="gate-icon">🔒</div>
+    <div class="gate-title">無料回数を使い切りました</div>
+    <div class="gate-sub">
+      引き続きご利用いただくには<br>
+      月額プランへのご登録をお願いします。
+    </div>
+    <a href="https://buy.stripe.com/YOUR_STRIPE_LINK" class="stripe-btn" target="_blank">
+      ✨ 月額 ¥2,980 で続ける
+    </a>
+    <div class="password-area">
+      <input type="password" id="pw-input" placeholder="パスワードをお持ちの方">
+      <button class="unlock-btn" onclick="unlockApp()">解錠</button>
+    </div>
+    <p id="pw-error" style="color:#dc2626;font-size:0.8rem;margin-top:8px;display:none;">
+      パスワードが違います
+    </p>
+  </div>
+
+</main>
+
+<footer>
+  &copy; 2025 <a href="https://spc-jp.github.io" target="_blank">Smile Plus Consulting</a>｜
+  写みっけ はみっけシリーズのサービスです
+</footer>
+
+<canvas id="resize-canvas" style="display:none;"></canvas>
+
+<script>
+// ── 設定 ────────────────────────────────────
+const WORKER_URL    = 'https://shamiikke-api.YOUR_SUBDOMAIN.workers.dev';
+const FREE_LIMIT    = 3;
+const STORAGE_KEY   = 'shamiikke_count';
+const UNLOCK_KEY    = 'shamiikke_unlocked';
+const CORRECT_PASS  = 'sha-pro2025'; // ← thanks-pages に合わせて変更
+// ────────────────────────────────────────────
+
+let imageBase64 = null;
+let selectedGenre = null;
+
+// カウント管理
+function getCount() { return parseInt(localStorage.getItem(STORAGE_KEY) || '0'); }
+function addCount() { localStorage.setItem(STORAGE_KEY, getCount() + 1); }
+function isUnlocked() { return localStorage.getItem(UNLOCK_KEY) === '1'; }
+function updateCounter() {
+  const remaining = Math.max(0, FREE_LIMIT - getCount());
+  document.getElementById('counter-display').textContent =
+    isUnlocked() ? '∞ 無制限' : remaining + ' 回';
+}
+
+// 起動時チェック
+window.addEventListener('DOMContentLoaded', () => {
+  updateCounter();
+  if (!isUnlocked() && getCount() >= FREE_LIMIT) showGate();
+});
+
+// ファイル選択
+document.getElementById('file-input').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  await processImage(file);
+});
+
+// ドラッグ&ドロップ
+const uploadArea = document.getElementById('upload-area');
+uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+uploadArea.addEventListener('drop', async (e) => {
+  e.preventDefault();
+  uploadArea.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) await processImage(file);
+});
+
+// 別の写真を選ぶ
+document.getElementById('change-btn').addEventListener('click', () => {
+  document.getElementById('file-input').click();
+});
+
+// 画像処理（Canvasリサイズ）
+async function processImage(file) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      img.onload = () => {
+        const canvas = document.getElementById('resize-canvas');
+        let w = img.width, h = img.height;
+        const MAX = 1280;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else        { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        imageBase64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+
+        // プレビュー表示
+        document.getElementById('preview-img').src = canvas.toDataURL('image/jpeg', 0.85);
+        document.getElementById('upload-area').style.display = 'none';
+        document.getElementById('preview-wrap').style.display = 'block';
+        checkReady();
+        resolve();
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// 業種ボタン
+document.querySelectorAll('.genre-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedGenre = btn.dataset.genre;
+    checkReady();
+  });
+});
+
+function checkReady() {
+  const ready = imageBase64 && selectedGenre;
+  document.getElementById('analyze-btn').disabled = !ready;
+}
+
+// 分析実行
+document.getElementById('analyze-btn').addEventListener('click', async () => {
+  if (!isUnlocked() && getCount() >= FREE_LIMIT) { showGate(); return; }
+  await analyze();
+});
+
+async function analyze() {
+  showLoading(true);
+  hideError();
+  document.getElementById('result-area').style.display = 'none';
+  document.getElementById('analyze-btn').disabled = true;
+
+  const prompt = `あなたは中小企業のSNS運用を支援するプロのWebマーケターです。
+業種：${selectedGenre}
+
+添付の写真を分析して、以下の形式でJSONのみ（前後に\`\`\`不要）で返してください。
+
+{
+  "advice": "写真のアドバイス（良い点2つ・改善点2つを具体的に。各項目を改行で区切る。150字以内）",
+  "instagram": "Instagram投稿文（絵文字多め・ハッシュタグ8〜12個付き・改行あり）",
+  "facebook": "Facebook投稿文（URLなし・読み物風・200〜300字・温かみある語り口）",
+  "x": "X投稿文（絵文字1〜2個・インパクト重視・140字以内・ハッシュタグ3個）"
+}`;
+
+  try {
+    const res = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        image_base64: imageBase64,
+        prompt: prompt
+      })
+    });
+
+    if (!res.ok) throw new Error('サーバーエラー: ' + res.status);
+    const data = await res.json();
+    const text = data.content?.[0]?.text || '';
+
+    let parsed;
+    try {
+      const clean = text.replace(/```json|```/g, '').trim();
+      parsed = JSON.parse(clean);
+    } catch {
+      throw new Error('AIの回答を解析できませんでした。もう一度お試しください。');
+    }
+
+    // カウント加算
+    if (!isUnlocked()) { addCount(); updateCounter(); }
+
+    // 表示
+    document.getElementById('advice-text').textContent = parsed.advice || '';
+    document.getElementById('ig-text').textContent     = parsed.instagram || '';
+    document.getElementById('fb-text').textContent     = parsed.facebook  || '';
+    document.getElementById('x-text').textContent      = parsed.x         || '';
+
+    document.getElementById('result-area').style.display = 'block';
+    document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // 次回チェック
+    if (!isUnlocked() && getCount() >= FREE_LIMIT) {
+      setTimeout(showGate, 1000);
+    }
+
+  } catch (err) {
+    showError(err.message);
+  } finally {
+    showLoading(false);
+    document.getElementById('analyze-btn').disabled = false;
+    checkReady();
+  }
+}
+
+// 再分析
+document.getElementById('retry-btn').addEventListener('click', () => {
+  if (!isUnlocked() && getCount() >= FREE_LIMIT) { showGate(); return; }
+  document.getElementById('result-area').style.display = 'none';
+  document.getElementById('upload-area').style.display = 'block';
+  document.getElementById('preview-wrap').style.display = 'none';
+  document.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('active'));
+  imageBase64 = null;
+  selectedGenre = null;
+  checkReady();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// コピー
+function copyText(id, btn) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✅ コピーしました！';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'コピーする';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+// Stripeゲート
+function showGate() {
+  document.getElementById('analyze-btn').style.display = 'none';
+  document.getElementById('stripe-gate').style.display = 'block';
+  document.getElementById('stripe-gate').scrollIntoView({ behavior: 'smooth' });
+}
+
+function unlockApp() {
+  const pw = document.getElementById('pw-input').value.trim();
+  if (pw === CORRECT_PASS) {
+    localStorage.setItem(UNLOCK_KEY, '1');
+    document.getElementById('stripe-gate').style.display = 'none';
+    document.getElementById('analyze-btn').style.display = 'block';
+    updateCounter();
+    alert('✅ 解錠しました！引き続きご利用ください。');
+  } else {
+    document.getElementById('pw-error').style.display = 'block';
+  }
+}
+
+// UI ヘルパー
+function showLoading(flag) {
+  document.getElementById('loading').style.display = flag ? 'block' : 'none';
+}
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = '⚠️ ' + msg;
+  el.style.display = 'block';
+}
+function hideError() {
+  document.getElementById('error-msg').style.display = 'none';
+}
+</script>
+</body>
+</html>
