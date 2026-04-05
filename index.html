@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>写みっけ｜写真1枚で、SNS投稿まで完成</title>
-<meta property="og:title" content="写みっけ｜写真1枚で、SNS投稿まで完成">
-<meta property="og:description" content="写真をアップロードするだけ。AIが改善アドバイス＋SNS投稿文を自動生成します。">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Oswald:wght@700&display=swap');
 
@@ -30,12 +28,13 @@
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
+    overflow-x: hidden;
   }
 
   header {
     background: var(--navy);
     color: var(--white);
-    padding: 18px 20px;
+    padding: 20px;
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -43,41 +42,65 @@
   header::before {
     content: '';
     position: absolute;
-    top: -40px; right: -40px;
-    width: 160px; height: 160px;
+    top: -50px; right: -50px;
+    width: 180px; height: 180px;
     background: var(--gold);
     opacity: 0.12;
     border-radius: 50%;
+    animation: pulse 3s ease-in-out infinite;
   }
-  header .logo {
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -30px; left: -30px;
+    width: 120px; height: 120px;
+    background: var(--lightblue);
+    opacity: 0.1;
+    border-radius: 50%;
+    animation: pulse 3s ease-in-out infinite 1.5s;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+  .logo {
     font-family: 'Oswald', sans-serif;
-    font-size: 2rem;
-    letter-spacing: 2px;
+    font-size: 2.2rem;
+    letter-spacing: 3px;
     color: var(--gold);
+    position: relative;
+    animation: fadeDown 0.6s ease;
   }
-  header .tagline {
-    font-size: 0.78rem;
-    opacity: 0.85;
-    margin-top: 4px;
+  .tagline {
+    font-size: 0.82rem;
+    opacity: 0.9;
+    margin-top: 5px;
     letter-spacing: 0.5px;
+    position: relative;
+    animation: fadeDown 0.6s ease 0.1s both;
   }
-
   .free-badge {
     display: inline-block;
     background: var(--gold);
     color: var(--navy);
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     font-weight: 700;
-    padding: 3px 10px;
+    padding: 4px 14px;
     border-radius: 20px;
-    margin-top: 8px;
+    margin-top: 10px;
     letter-spacing: 0.5px;
+    position: relative;
+    animation: fadeDown 0.6s ease 0.2s both;
+  }
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
   main {
     max-width: 680px;
     margin: 0 auto;
-    padding: 24px 16px 60px;
+    padding: 24px 16px 80px;
   }
 
   .card {
@@ -85,32 +108,49 @@
     border-radius: var(--radius);
     padding: 24px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 12px rgba(34,54,112,0.08);
+    box-shadow: 0 2px 16px rgba(34,54,112,0.09);
+    animation: fadeUp 0.5s ease both;
   }
-
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
   .card-title {
     font-size: 0.78rem;
     font-weight: 700;
     color: var(--blue);
     letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
   }
 
-  /* アップロードエリア */
+  .counter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-radius: 12px;
+    padding: 12px 18px;
+    margin-bottom: 18px;
+    font-size: 0.84rem;
+    animation: fadeUp 0.4s ease;
+  }
+  .count { font-weight: 900; color: var(--gold); font-size: 1.1rem; }
+
   .upload-area {
     border: 2.5px dashed #c5d0ea;
     border-radius: 14px;
-    padding: 36px 20px;
+    padding: 40px 20px;
     text-align: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.25s;
     background: var(--gray);
     position: relative;
   }
   .upload-area:hover, .upload-area.drag-over {
     border-color: var(--blue);
     background: #eef2ff;
+    transform: scale(1.01);
   }
   .upload-area input[type="file"] {
     position: absolute;
@@ -120,21 +160,26 @@
     width: 100%;
     height: 100%;
   }
-  .upload-icon { font-size: 2.8rem; margin-bottom: 10px; }
-  .upload-text { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+  .upload-icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  .upload-text { font-size: 0.88rem; color: var(--muted); line-height: 1.7; }
   .upload-text strong { color: var(--blue); }
 
-  #preview-wrap {
-    display: none;
-    margin-top: 16px;
-    text-align: center;
-  }
+  #preview-wrap { display: none; margin-top: 16px; text-align: center; }
   #preview-img {
     max-width: 100%;
     max-height: 280px;
-    border-radius: 10px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
     object-fit: cover;
+    animation: fadeUp 0.4s ease;
   }
   .change-btn {
     display: inline-block;
@@ -145,212 +190,248 @@
     text-decoration: underline;
   }
 
-  /* 業種セレクト */
   .genre-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+    gap: 10px;
   }
   .genre-btn {
     border: 2px solid #d1d9f0;
     background: var(--white);
-    border-radius: 10px;
-    padding: 10px 6px;
-    font-size: 0.8rem;
+    border-radius: 14px;
+    padding: 14px 6px;
+    font-size: 0.82rem;
     font-family: 'Noto Sans JP', sans-serif;
     cursor: pointer;
     text-align: center;
-    transition: all 0.15s;
+    transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
     color: var(--text);
     line-height: 1.4;
   }
-  .genre-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .genre-btn:hover {
+    border-color: var(--blue);
+    color: var(--blue);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(34,90,211,0.15);
+  }
   .genre-btn.active {
     border-color: var(--blue);
-    background: var(--blue);
+    background: linear-gradient(135deg, var(--blue), var(--lightblue));
     color: var(--white);
     font-weight: 700;
+    transform: scale(1.06) translateY(-3px);
+    box-shadow: 0 8px 20px rgba(34,90,211,0.3);
   }
-  .genre-btn .genre-icon { font-size: 1.3rem; display: block; margin-bottom: 4px; }
+  .genre-icon { font-size: 1.6rem; display: block; margin-bottom: 6px; }
 
-  /* 分析ボタン */
   .analyze-btn {
     width: 100%;
     background: linear-gradient(135deg, var(--blue), var(--lightblue));
     color: var(--white);
     border: none;
-    border-radius: 14px;
-    padding: 18px;
-    font-size: 1.05rem;
+    border-radius: 16px;
+    padding: 20px;
+    font-size: 1.08rem;
     font-weight: 700;
     font-family: 'Noto Sans JP', sans-serif;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
     letter-spacing: 0.5px;
-    box-shadow: 0 4px 16px rgba(34,90,211,0.3);
+    box-shadow: 0 6px 20px rgba(34,90,211,0.35);
   }
-  .analyze-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(34,90,211,0.4); }
-  .analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .analyze-btn:hover:not(:disabled) {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 10px 28px rgba(34,90,211,0.45);
+  }
+  .analyze-btn:active:not(:disabled) { transform: scale(0.97); }
+  .analyze-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-  /* カウンター */
-  .counter-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: #fff8e1;
-    border: 1px solid #ffe082;
+  .loading { display: none; text-align: center; padding: 40px 20px; }
+  .loading-emoji {
+    font-size: 2.8rem;
+    animation: spinY 1.5s linear infinite;
+    display: block;
+    margin-bottom: 14px;
+  }
+  @keyframes spinY { to { transform: rotateY(360deg); } }
+  .stage-text {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--blue);
+    min-height: 28px;
+    margin-bottom: 14px;
+    transition: all 0.3s ease;
+  }
+  .loading-bar-wrap {
+    height: 8px;
+    background: #e0e7ff;
     border-radius: 10px;
-    padding: 10px 16px;
-    margin-bottom: 16px;
-    font-size: 0.82rem;
+    margin: 0 auto;
+    max-width: 260px;
+    overflow: hidden;
   }
-  .counter-bar .count { font-weight: 700; color: var(--gold); font-size: 1rem; }
+  .loading-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue), var(--lightblue));
+    border-radius: 10px;
+    width: 0%;
+    transition: width 0.8s ease;
+  }
 
-  /* ローディング */
-  .loading {
-    display: none;
+  .score-wrap {
     text-align: center;
-    padding: 30px;
+    padding: 26px;
+    background: linear-gradient(135deg, #f0f4ff, #fff8e8);
+    border-radius: 18px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 14px rgba(34,54,112,0.09);
   }
-  .spinner {
-    width: 44px; height: 44px;
-    border: 4px solid #e0e7ff;
-    border-top-color: var(--blue);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 14px;
+  .score-label { font-size: 0.8rem; color: var(--muted); margin-bottom: 8px; }
+  .score-num {
+    font-family: 'Oswald', sans-serif;
+    font-size: 4.5rem;
+    color: var(--navy);
+    line-height: 1;
+    margin-bottom: 6px;
   }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { font-size: 0.88rem; color: var(--muted); }
-
-  /* 結果エリア */
-  #result-area { display: none; }
+  .score-num span { font-size: 1.6rem; color: var(--muted); }
+  .score-comment { font-size: 0.9rem; font-weight: 700; margin-bottom: 16px; }
+  .score-bar-wrap {
+    height: 14px;
+    background: #e0e7ff;
+    border-radius: 20px;
+    overflow: hidden;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+  .score-bar {
+    height: 100%;
+    border-radius: 20px;
+    width: 0%;
+    transition: width 1.4s cubic-bezier(0.34,1.2,0.64,1);
+  }
 
   .advice-box {
     background: linear-gradient(135deg, #eef2ff, #f0f9ff);
     border-left: 4px solid var(--blue);
-    border-radius: 0 12px 12px 0;
-    padding: 18px;
+    border-radius: 0 14px 14px 0;
+    padding: 20px;
     margin-bottom: 20px;
   }
-  .advice-box h3 {
-    font-size: 0.88rem;
-    font-weight: 700;
-    color: var(--blue);
-    margin-bottom: 10px;
-  }
-  .advice-box p {
-    font-size: 0.88rem;
-    line-height: 1.8;
-    color: var(--text);
-    white-space: pre-wrap;
-  }
+  .advice-box h3 { font-size: 0.88rem; font-weight: 700; color: var(--blue); margin-bottom: 10px; }
+  .advice-box p { font-size: 0.88rem; line-height: 1.9; color: var(--text); white-space: pre-wrap; }
 
-  /* SNS投稿文 */
   .sns-card {
     background: var(--white);
-    border-radius: 14px;
-    padding: 20px;
+    border-radius: 16px;
+    padding: 22px;
     margin-bottom: 14px;
-    box-shadow: 0 2px 10px rgba(34,54,112,0.07);
+    box-shadow: 0 2px 12px rgba(34,54,112,0.08);
     border: 1px solid #e8edf8;
   }
   .sns-label {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 0.82rem;
+    gap: 10px;
+    font-size: 0.84rem;
     font-weight: 700;
     color: var(--navy);
-    margin-bottom: 12px;
+    margin-bottom: 14px;
   }
-  .sns-label .sns-icon {
-    width: 28px; height: 28px;
-    border-radius: 7px;
+  .sns-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 0.95rem;
+    font-size: 1rem;
     color: var(--white);
+    font-weight: 900;
   }
-  .sns-label .sns-icon.ig { background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
-  .sns-label .sns-icon.fb { background: #1877f2; }
-  .sns-label .sns-icon.x  { background: #000; }
+  .ig { background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+  .fb { background: #1877f2; }
+  .xb { background: #000; }
 
   .sns-text {
-    font-size: 0.86rem;
-    line-height: 1.85;
+    font-size: 0.87rem;
+    line-height: 1.9;
     color: var(--text);
     white-space: pre-wrap;
     word-break: break-word;
+    min-height: 24px;
   }
 
   .copy-btn {
     display: block;
     width: 100%;
-    margin-top: 12px;
+    margin-top: 14px;
     border: 2px solid var(--blue);
     background: var(--white);
     color: var(--blue);
-    border-radius: 8px;
-    padding: 9px;
-    font-size: 0.82rem;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 0.84rem;
     font-weight: 700;
     font-family: 'Noto Sans JP', sans-serif;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
   }
-  .copy-btn:hover { background: var(--blue); color: var(--white); }
-  .copy-btn.copied { background: var(--success); border-color: var(--success); color: var(--white); }
+  .copy-btn:hover { background: var(--blue); color: var(--white); transform: scale(1.02); }
+  .copy-btn.copied { background: var(--success); border-color: var(--success); color: var(--white); transform: scale(1.04); }
 
-  /* 再分析ボタン */
+  .confetti-wrap {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+  }
+  .confetti-piece {
+    position: absolute;
+    animation: confettiFall 1.3s ease-in forwards;
+  }
+  @keyframes confettiFall {
+    0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
   .retry-btn {
     width: 100%;
     background: var(--white);
     border: 2px solid var(--navy);
     color: var(--navy);
     border-radius: 14px;
-    padding: 14px;
+    padding: 15px;
     font-size: 0.95rem;
     font-weight: 700;
     font-family: 'Noto Sans JP', sans-serif;
     cursor: pointer;
     margin-top: 10px;
-    transition: all 0.15s;
+    transition: all 0.2s;
   }
-  .retry-btn:hover { background: var(--navy); color: var(--white); }
+  .retry-btn:hover { background: var(--navy); color: var(--white); transform: translateY(-2px); }
 
-  /* Stripeゲート */
-  #stripe-gate {
-    display: none;
-    text-align: center;
-    padding: 30px 20px;
-  }
-  .gate-icon { font-size: 3rem; margin-bottom: 12px; }
-  .gate-title { font-size: 1.2rem; font-weight: 900; color: var(--navy); margin-bottom: 8px; }
-  .gate-sub { font-size: 0.85rem; color: var(--muted); line-height: 1.7; margin-bottom: 24px; }
+  #stripe-gate { display: none; text-align: center; padding: 36px 20px; }
+  .gate-icon { font-size: 3.2rem; margin-bottom: 14px; animation: bounce 2s ease-in-out infinite; }
+  .gate-title { font-size: 1.25rem; font-weight: 900; color: var(--navy); margin-bottom: 10px; }
+  .gate-sub { font-size: 0.86rem; color: var(--muted); line-height: 1.8; margin-bottom: 26px; }
   .stripe-btn {
     display: inline-block;
-    background: var(--gold);
+    background: linear-gradient(135deg, var(--gold), #e8bc00);
     color: var(--navy);
     font-weight: 900;
     font-size: 1rem;
-    padding: 16px 40px;
+    padding: 17px 44px;
     border-radius: 50px;
     text-decoration: none;
-    box-shadow: 0 4px 16px rgba(208,169,0,0.4);
-    transition: all 0.2s;
+    box-shadow: 0 6px 20px rgba(208,169,0,0.4);
+    transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
   }
-  .stripe-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(208,169,0,0.5); }
+  .stripe-btn:hover { transform: translateY(-3px) scale(1.04); }
 
-  /* パスワード解錠 */
-  .password-area {
-    margin-top: 20px;
-    display: flex;
-    gap: 8px;
-  }
+  .password-area { margin-top: 22px; display: flex; gap: 8px; }
   .password-area input {
     flex: 1;
     border: 2px solid #d1d9f0;
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 10px 14px;
     font-size: 0.88rem;
     font-family: 'Noto Sans JP', sans-serif;
@@ -361,15 +442,16 @@
     background: var(--navy);
     color: var(--white);
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 10px 18px;
     font-size: 0.85rem;
     font-weight: 700;
     font-family: 'Noto Sans JP', sans-serif;
     cursor: pointer;
+    transition: all 0.2s;
   }
+  .unlock-btn:hover { background: var(--blue); transform: scale(1.04); }
 
-  /* エラー */
   .error-msg {
     display: none;
     background: #fff0f0;
@@ -380,6 +462,8 @@
     font-size: 0.85rem;
     margin-bottom: 16px;
   }
+
+  #result-area { display: none; }
 
   footer {
     text-align: center;
@@ -400,13 +484,11 @@
 
 <main>
 
-  <!-- カウンター -->
   <div class="counter-bar">
     <span>無料残り回数</span>
     <span class="count" id="counter-display">3 回</span>
   </div>
 
-  <!-- STEP1: 写真アップロード -->
   <div class="card">
     <div class="card-title">📷 STEP 1｜写真をアップロード</div>
     <div class="upload-area" id="upload-area">
@@ -423,188 +505,146 @@
     </div>
   </div>
 
-  <!-- STEP2: 業種選択 -->
   <div class="card">
     <div class="card-title">🏪 STEP 2｜業種を選んでください</div>
     <div class="genre-grid">
-      <button class="genre-btn" data-genre="飲食店">
-        <span class="genre-icon">🍽️</span>飲食店
-      </button>
-      <button class="genre-btn" data-genre="美容室・エステ">
-        <span class="genre-icon">💇</span>美容室
-      </button>
-      <button class="genre-btn" data-genre="製造業・工務店">
-        <span class="genre-icon">🏭</span>製造業
-      </button>
-      <button class="genre-btn" data-genre="小売・雑貨店">
-        <span class="genre-icon">🛍️</span>小売店
-      </button>
-      <button class="genre-btn" data-genre="士業・コンサル">
-        <span class="genre-icon">💼</span>士業
-      </button>
-      <button class="genre-btn" data-genre="その他">
-        <span class="genre-icon">✨</span>その他
-      </button>
+      <button class="genre-btn" data-genre="飲食店"><span class="genre-icon">🍽️</span>飲食店</button>
+      <button class="genre-btn" data-genre="美容室・エステ"><span class="genre-icon">💇</span>美容室</button>
+      <button class="genre-btn" data-genre="製造業・工務店"><span class="genre-icon">🏭</span>製造業</button>
+      <button class="genre-btn" data-genre="小売・雑貨店"><span class="genre-icon">🛍️</span>小売店</button>
+      <button class="genre-btn" data-genre="士業・コンサル"><span class="genre-icon">💼</span>士業</button>
+      <button class="genre-btn" data-genre="その他"><span class="genre-icon">✨</span>その他</button>
     </div>
   </div>
 
-  <!-- エラー表示 -->
   <div class="error-msg" id="error-msg"></div>
 
-  <!-- 分析ボタン -->
   <button class="analyze-btn" id="analyze-btn" disabled>
     🔍 写真を分析してSNS投稿文を作る
   </button>
 
-  <!-- ローディング -->
   <div class="loading" id="loading">
-    <div class="spinner"></div>
-    <div class="loading-text">写真を分析しています...<br>少々お待ちください</div>
+    <span class="loading-emoji">📸</span>
+    <div class="stage-text" id="stage-text">📸 写真を読み込み中...</div>
+    <div class="loading-bar-wrap">
+      <div class="loading-bar" id="loading-bar"></div>
+    </div>
   </div>
 
-  <!-- 結果エリア -->
   <div id="result-area">
-    <!-- 改善アドバイス -->
-    <div class="advice-box" id="advice-box">
-      <h3>📊 写真アドバイス</h3>
+
+    <div class="score-wrap">
+      <div class="score-label">📊 あなたの写真の診断スコア</div>
+      <div class="score-num" id="score-num">0<span>点</span></div>
+      <div class="score-comment" id="score-comment"></div>
+      <div class="score-bar-wrap">
+        <div class="score-bar" id="score-bar"></div>
+      </div>
+    </div>
+
+    <div class="advice-box">
+      <h3>💡 改善アドバイス</h3>
       <p id="advice-text"></p>
     </div>
 
-    <!-- Instagram -->
     <div class="sns-card">
-      <div class="sns-label">
-        <span class="sns-icon ig">📷</span>Instagram 投稿文
-      </div>
+      <div class="sns-label"><span class="sns-icon ig">📷</span>Instagram 投稿文</div>
       <div class="sns-text" id="ig-text"></div>
-      <button class="copy-btn" onclick="copyText('ig-text', this)">コピーする</button>
+      <button class="copy-btn" onclick="copyText('ig-text', this)">📋 コピーする</button>
     </div>
 
-    <!-- Facebook -->
     <div class="sns-card">
-      <div class="sns-label">
-        <span class="sns-icon fb">f</span>Facebook 投稿文
-      </div>
+      <div class="sns-label"><span class="sns-icon fb">f</span>Facebook 投稿文</div>
       <div class="sns-text" id="fb-text"></div>
-      <button class="copy-btn" onclick="copyText('fb-text', this)">コピーする</button>
+      <button class="copy-btn" onclick="copyText('fb-text', this)">📋 コピーする</button>
     </div>
 
-    <!-- X -->
     <div class="sns-card">
-      <div class="sns-label">
-        <span class="sns-icon x">𝕏</span>X（旧Twitter）投稿文
-      </div>
+      <div class="sns-label"><span class="sns-icon xb">𝕏</span>X（旧Twitter）投稿文</div>
       <div class="sns-text" id="x-text"></div>
-      <button class="copy-btn" onclick="copyText('x-text', this)">コピーする</button>
+      <button class="copy-btn" onclick="copyText('x-text', this)">📋 コピーする</button>
     </div>
 
     <button class="retry-btn" id="retry-btn">🔄 別の写真を分析する</button>
   </div>
 
-  <!-- Stripeゲート -->
   <div id="stripe-gate" class="card">
     <div class="gate-icon">🔒</div>
     <div class="gate-title">無料回数を使い切りました</div>
     <div class="gate-sub">
-      引き続きご利用いただくには<br>
-      月額プランへのご登録をお願いします。
+      引き続きご利用いただくには<br>月額プランへのご登録をお願いします。
     </div>
-   <a href="https://buy.stripe.com/6oU4gyeP8fvDb954oIcV20f" class="stripe-btn" target="_blank">
+    <a href="https://buy.stripe.com/6oU4gyeP8fvDb954oIcV20f" class="stripe-btn" target="_blank">
       ✨ 月額 ¥2,980 で続ける
     </a>
     <div class="password-area">
       <input type="password" id="pw-input" placeholder="パスワードをお持ちの方">
       <button class="unlock-btn" onclick="unlockApp()">解錠</button>
     </div>
-    <p id="pw-error" style="color:#dc2626;font-size:0.8rem;margin-top:8px;display:none;">
-      パスワードが違います
-    </p>
+    <p id="pw-error" style="color:#dc2626;font-size:0.8rem;margin-top:8px;display:none;">パスワードが違います</p>
   </div>
 
 </main>
 
 <footer>
-  &copy; 2025 <a href="https://spc-jp.github.io" target="_blank">Smile Plus Consulting</a>｜
-  写みっけ はみっけシリーズのサービスです
+  &copy; 2025 <a href="https://spc-jp.github.io" target="_blank">Smile Plus Consulting</a>｜写みっけ はみっけシリーズのサービスです
 </footer>
 
 <canvas id="resize-canvas" style="display:none;"></canvas>
 
 <script>
-// ── 設定 ────────────────────────────────────
-const WORKER_URL = 'https://shamiikke-api.yymmatsu.workers.dev';
-const FREE_LIMIT    = 3;
-const STORAGE_KEY   = 'shamiikke_count';
-const UNLOCK_KEY    = 'shamiikke_unlocked';
-const CORRECT_PASS  = 'sha-pro2025'; // ← thanks-pages に合わせて変更
-// ────────────────────────────────────────────
+const WORKER_URL   = 'https://shamiikke-api.yymmatsu.workers.dev';
+const FREE_LIMIT   = 3;
+const STORAGE_KEY  = 'shamiikke_count';
+const UNLOCK_KEY   = 'shamiikke_unlocked';
+const CORRECT_PASS = 'sha-pro2025';
 
-let imageBase64 = null;
-let selectedGenre = null;
+let imageBase64 = null, selectedGenre = null;
 
-// カウント管理
-function getCount() { return parseInt(localStorage.getItem(STORAGE_KEY) || '0'); }
-function addCount() { localStorage.setItem(STORAGE_KEY, getCount() + 1); }
+function getCount()   { return parseInt(localStorage.getItem(STORAGE_KEY) || '0'); }
+function addCount()   { localStorage.setItem(STORAGE_KEY, getCount() + 1); }
 function isUnlocked() { return localStorage.getItem(UNLOCK_KEY) === '1'; }
 function updateCounter() {
-  const remaining = Math.max(0, FREE_LIMIT - getCount());
-  document.getElementById('counter-display').textContent =
-    isUnlocked() ? '∞ 無制限' : remaining + ' 回';
+  const rem = Math.max(0, FREE_LIMIT - getCount());
+  document.getElementById('counter-display').textContent = isUnlocked() ? '∞ 無制限' : rem + ' 回';
 }
 
-// 起動時チェック
 window.addEventListener('DOMContentLoaded', () => {
   updateCounter();
   if (!isUnlocked() && getCount() >= FREE_LIMIT) showGate();
 });
 
-// ファイル選択
 document.getElementById('file-input').addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  await processImage(file);
+  if (e.target.files[0]) await processImage(e.target.files[0]);
 });
 
-// ドラッグ&ドロップ
 const uploadArea = document.getElementById('upload-area');
-uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+uploadArea.addEventListener('dragover',  (e) => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
 uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
 uploadArea.addEventListener('drop', async (e) => {
-  e.preventDefault();
-  uploadArea.classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (file) await processImage(file);
+  e.preventDefault(); uploadArea.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) await processImage(e.dataTransfer.files[0]);
 });
+document.getElementById('change-btn').addEventListener('click', () => document.getElementById('file-input').click());
 
-// 別の写真を選ぶ
-document.getElementById('change-btn').addEventListener('click', () => {
-  document.getElementById('file-input').click();
-});
-
-// 画像処理（Canvasリサイズ）
 async function processImage(file) {
   return new Promise((resolve) => {
-    const img = new Image();
-    const reader = new FileReader();
+    const img = new Image(), reader = new FileReader();
     reader.onload = (e) => {
       img.onload = () => {
         const canvas = document.getElementById('resize-canvas');
-        let w = img.width, h = img.height;
-        const MAX = 1280;
+        let w = img.width, h = img.height, MAX = 1280;
         if (w > MAX || h > MAX) {
           if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
-          else        { w = Math.round(w * MAX / h); h = MAX; }
+          else       { w = Math.round(w * MAX / h); h = MAX; }
         }
         canvas.width = w; canvas.height = h;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, w, h);
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
         imageBase64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
-
-        // プレビュー表示
         document.getElementById('preview-img').src = canvas.toDataURL('image/jpeg', 0.85);
-        document.getElementById('upload-area').style.display = 'none';
+        document.getElementById('upload-area').style.display  = 'none';
         document.getElementById('preview-wrap').style.display = 'block';
-        checkReady();
-        resolve();
+        checkReady(); resolve();
       };
       img.src = e.target.result;
     };
@@ -612,7 +652,6 @@ async function processImage(file) {
   });
 }
 
-// 業種ボタン
 document.querySelectorAll('.genre-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('active'));
@@ -623,8 +662,71 @@ document.querySelectorAll('.genre-btn').forEach(btn => {
 });
 
 function checkReady() {
-  const ready = imageBase64 && selectedGenre;
-  document.getElementById('analyze-btn').disabled = !ready;
+  document.getElementById('analyze-btn').disabled = !(imageBase64 && selectedGenre);
+}
+
+// ローディングステージ
+const stages = [
+  { text: '📸 写真を読み込み中...', pct: 20 },
+  { text: '🔍 構図・明るさを分析中...', pct: 45 },
+  { text: '💡 改善ポイントを抽出中...', pct: 68 },
+  { text: '✍️ SNS投稿文を生成中...', pct: 88 },
+  { text: '🎉 もうすぐ完成です！', pct: 97 },
+];
+let stageTimer = null;
+
+function startStages() {
+  let i = 0;
+  const stEl = document.getElementById('stage-text');
+  const brEl = document.getElementById('loading-bar');
+  stEl.textContent = stages[0].text;
+  brEl.style.width = stages[0].pct + '%';
+  stageTimer = setInterval(() => {
+    i++;
+    if (i < stages.length) {
+      stEl.textContent = stages[i].text;
+      brEl.style.width = stages[i].pct + '%';
+    }
+  }, 1800);
+}
+function stopStages() {
+  clearInterval(stageTimer);
+  document.getElementById('loading-bar').style.width = '100%';
+}
+
+// スコア
+function showScore(score) {
+  const numEl = document.getElementById('score-num');
+  const barEl = document.getElementById('score-bar');
+  const comEl = document.getElementById('score-comment');
+  let color, comment;
+  if      (score >= 85) { color = '#10b981'; comment = '🌟 すごい！この写真はバッチリです！'; }
+  else if (score >= 70) { color = '#225AD3'; comment = '👍 なかなか良い写真ですよ！'; }
+  else if (score >= 55) { color = '#D0A900'; comment = '💡 少し改善すれば映えますよ！'; }
+  else                  { color = '#ef4444'; comment = '📚 アドバイスを参考に撮り直してみましょう！'; }
+  barEl.style.background = color;
+  comEl.textContent = comment;
+  comEl.style.color = color;
+  let cur = 0;
+  const iv = setInterval(() => {
+    cur += Math.ceil(score / 30);
+    if (cur >= score) { cur = score; clearInterval(iv); }
+    numEl.innerHTML = cur + '<span>点</span>';
+  }, 40);
+  setTimeout(() => { barEl.style.width = score + '%'; }, 100);
+}
+
+// タイプライター
+function typeWriter(id, text, speed = 16) {
+  const el = document.getElementById(id);
+  el.textContent = '';
+  let i = 0;
+  return new Promise((resolve) => {
+    const t = setInterval(() => {
+      if (i < text.length) { el.textContent += text[i++]; }
+      else { clearInterval(t); resolve(); }
+    }, speed);
+  });
 }
 
 // 分析実行
@@ -634,10 +736,11 @@ document.getElementById('analyze-btn').addEventListener('click', async () => {
 });
 
 async function analyze() {
-  showLoading(true);
-  hideError();
+  document.getElementById('loading').style.display     = 'block';
   document.getElementById('result-area').style.display = 'none';
-  document.getElementById('analyze-btn').disabled = true;
+  document.getElementById('analyze-btn').disabled      = true;
+  hideError();
+  startStages();
 
   const prompt = `あなたは中小企業のSNS運用を支援するプロのWebマーケターです。
 業種：${selectedGenre}
@@ -645,6 +748,7 @@ async function analyze() {
 添付の写真を分析して、以下の形式でJSONのみ（前後に\`\`\`不要）で返してください。
 
 {
+  "score": 写真の総合評価点数（50〜100の整数）,
   "advice": "写真のアドバイス（良い点2つ・改善点2つを具体的に。各項目を改行で区切る。150字以内）",
   "instagram": "Instagram投稿文（絵文字多め・ハッシュタグ8〜12個付き・改行あり）",
   "facebook": "Facebook投稿文（URLなし・読み物風・200〜300字・温かみある語り口）",
@@ -655,77 +759,85 @@ async function analyze() {
     const res = await fetch(WORKER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        image_base64: imageBase64,
-        prompt: prompt
-      })
+      body: JSON.stringify({ image_base64: imageBase64, prompt })
     });
-
     if (!res.ok) throw new Error('サーバーエラー: ' + res.status);
     const data = await res.json();
     const text = data.content?.[0]?.text || '';
-
     let parsed;
-    try {
-      const clean = text.replace(/```json|```/g, '').trim();
-      parsed = JSON.parse(clean);
-    } catch {
-      throw new Error('AIの回答を解析できませんでした。もう一度お試しください。');
-    }
+    try { parsed = JSON.parse(text.replace(/```json|```/g, '').trim()); }
+    catch { throw new Error('AIの回答を解析できませんでした。もう一度お試しください。'); }
 
-    // カウント加算
     if (!isUnlocked()) { addCount(); updateCounter(); }
 
-    // 表示
-    document.getElementById('advice-text').textContent = parsed.advice || '';
-    document.getElementById('ig-text').textContent     = parsed.instagram || '';
-    document.getElementById('fb-text').textContent     = parsed.facebook  || '';
-    document.getElementById('x-text').textContent      = parsed.x         || '';
+    stopStages();
+    document.getElementById('loading').style.display = 'none';
 
+    showScore(parsed.score || 72);
     document.getElementById('result-area').style.display = 'block';
     document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-    // 次回チェック
-    if (!isUnlocked() && getCount() >= FREE_LIMIT) {
-      setTimeout(showGate, 1000);
-    }
+    await typeWriter('advice-text', parsed.advice    || '', 14);
+    await typeWriter('ig-text',     parsed.instagram || '', 12);
+    await typeWriter('fb-text',     parsed.facebook  || '', 12);
+    await typeWriter('x-text',      parsed.x         || '', 12);
+
+    if (!isUnlocked() && getCount() >= FREE_LIMIT) setTimeout(showGate, 1200);
 
   } catch (err) {
+    stopStages();
+    document.getElementById('loading').style.display = 'none';
     showError(err.message);
   } finally {
-    showLoading(false);
     document.getElementById('analyze-btn').disabled = false;
     checkReady();
   }
 }
 
-// 再分析
 document.getElementById('retry-btn').addEventListener('click', () => {
   if (!isUnlocked() && getCount() >= FREE_LIMIT) { showGate(); return; }
-  document.getElementById('result-area').style.display = 'none';
-  document.getElementById('upload-area').style.display = 'block';
+  document.getElementById('result-area').style.display  = 'none';
+  document.getElementById('upload-area').style.display  = 'block';
   document.getElementById('preview-wrap').style.display = 'none';
   document.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('active'));
-  imageBase64 = null;
-  selectedGenre = null;
+  imageBase64 = null; selectedGenre = null;
   checkReady();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
-// コピー
+// コピー＋紙吹雪
 function copyText(id, btn) {
-  const text = document.getElementById(id).textContent;
-  navigator.clipboard.writeText(text).then(() => {
+  navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => {
     btn.textContent = '✅ コピーしました！';
     btn.classList.add('copied');
-    setTimeout(() => {
-      btn.textContent = 'コピーする';
-      btn.classList.remove('copied');
-    }, 2000);
+    launchConfetti();
+    setTimeout(() => { btn.textContent = '📋 コピーする'; btn.classList.remove('copied'); }, 2200);
   });
 }
 
-// Stripeゲート
+function launchConfetti() {
+  const colors = ['#D0A900','#225AD3','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899'];
+  const wrap = document.createElement('div');
+  wrap.className = 'confetti-wrap';
+  document.body.appendChild(wrap);
+  for (let i = 0; i < 40; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    const size = 6 + Math.random() * 9;
+    el.style.cssText = `
+      left:${Math.random()*100}%;
+      top:${Math.random()*20}%;
+      width:${size}px; height:${size}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      border-radius:${Math.random()>0.5?'50%':'3px'};
+      animation-delay:${Math.random()*0.5}s;
+      animation-duration:${0.9+Math.random()*0.7}s;
+    `;
+    wrap.appendChild(el);
+  }
+  setTimeout(() => wrap.remove(), 2200);
+}
+
 function showGate() {
   document.getElementById('analyze-btn').style.display = 'none';
   document.getElementById('stripe-gate').style.display = 'block';
@@ -733,30 +845,20 @@ function showGate() {
 }
 
 function unlockApp() {
-  const pw = document.getElementById('pw-input').value.trim();
-  if (pw === CORRECT_PASS) {
+  if (document.getElementById('pw-input').value.trim() === CORRECT_PASS) {
     localStorage.setItem(UNLOCK_KEY, '1');
     document.getElementById('stripe-gate').style.display = 'none';
     document.getElementById('analyze-btn').style.display = 'block';
     updateCounter();
+    launchConfetti();
     alert('✅ 解錠しました！引き続きご利用ください。');
   } else {
     document.getElementById('pw-error').style.display = 'block';
   }
 }
 
-// UI ヘルパー
-function showLoading(flag) {
-  document.getElementById('loading').style.display = flag ? 'block' : 'none';
-}
-function showError(msg) {
-  const el = document.getElementById('error-msg');
-  el.textContent = '⚠️ ' + msg;
-  el.style.display = 'block';
-}
-function hideError() {
-  document.getElementById('error-msg').style.display = 'none';
-}
+function showError(msg) { const el = document.getElementById('error-msg'); el.textContent = '⚠️ ' + msg; el.style.display = 'block'; }
+function hideError()    { document.getElementById('error-msg').style.display = 'none'; }
 </script>
 </body>
 </html>
